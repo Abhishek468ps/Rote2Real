@@ -15,24 +15,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # --------------------------------------------------
+      # 1. Checkout source code
+      # --------------------------------------------------
       - name: Checkout source
         uses: actions/checkout@v6
 
+      # --------------------------------------------------
+      # 2. Setup Node.js
+      # --------------------------------------------------
+      # Cache is intentionally disabled here because the
+      # current repository is not resolving frontend/package-lock.json
+      # during the setup step.
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
 
+      # --------------------------------------------------
+      # 3. Install frontend dependencies
+      # --------------------------------------------------
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
 
+      # --------------------------------------------------
+      # 4. Build frontend
+      # --------------------------------------------------
       - name: Build frontend
         working-directory: frontend
         run: npm run build
 
+      # --------------------------------------------------
+      # 5. Setup Java 21
+      # --------------------------------------------------
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -41,17 +57,29 @@ jobs:
           cache: maven
           cache-dependency-path: backend/pom.xml
 
+      # --------------------------------------------------
+      # 6. Build Spring Boot backend
+      # --------------------------------------------------
       - name: Build backend
         working-directory: backend
         run: mvn clean package -DskipTests
 
+      # --------------------------------------------------
+      # 7. Configure SSH
+      # --------------------------------------------------
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
+
           echo "${{ secrets.DROPLET_SSH_KEY }}" > ~/.ssh/braintrain
+
           chmod 600 ~/.ssh/braintrain
+
           ssh-keyscan -H "${{ secrets.DROPLET_HOST }}" >> ~/.ssh/known_hosts
 
+      # --------------------------------------------------
+      # 8. Deploy to DigitalOcean Droplet
+      # --------------------------------------------------
       - name: Deploy to DigitalOcean
         run: |
           ssh -i ~/.ssh/braintrain \
@@ -59,31 +87,103 @@ jobs:
 
           set -e
 
+          echo "======================================"
+          echo "Starting BrainTrain deployment"
+          echo "======================================"
+
+          # Go to application directory
           cd /opt/braintrain/braintrain-website
 
-          echo "Updating source..."
+          # ------------------------------------------------
+          # Update source from GitHub
+          # ------------------------------------------------
+          echo "Updating source from GitHub..."
+
           git fetch origin
+
           git reset --hard origin/main
 
-          echo "Building backend..."
+          echo "Source updated successfully."
+
+          # ------------------------------------------------
+          # Build backend
+          # ------------------------------------------------
+          echo "======================================"
+          echo "Building Spring Boot backend"
+          echo "======================================"
+
           cd backend
+
           mvn clean package -DskipTests
 
-          echo "Building frontend..."
+          echo "Backend build completed."
+
+          # ------------------------------------------------
+          # Build frontend
+          # ------------------------------------------------
+          echo "======================================"
+          echo "Building Next.js frontend"
+          echo "======================================"
+
           cd ../frontend
+
           npm ci
+
           npm run build
 
-          echo "Restarting backend..."
+          echo "Frontend build completed."
+
+          # ------------------------------------------------
+          # Restart backend
+          # ------------------------------------------------
+          echo "======================================"
+          echo "Restarting backend"
+          echo "======================================"
+
           systemctl restart braintrain-backend
 
-          echo "Restarting frontend..."
+          # Give Spring Boot a few seconds to start
+          sleep 5
+
+          # ------------------------------------------------
+          # Restart frontend
+          # ------------------------------------------------
+          echo "======================================"
+          echo "Restarting frontend"
+          echo "======================================"
+
           systemctl restart braintrain-frontend
 
-          echo "Checking services..."
+          # Give Next.js a few seconds to start
+          sleep 3
+
+          # ------------------------------------------------
+          # Verify backend
+          # ------------------------------------------------
+          echo "======================================"
+          echo "Checking backend"
+          echo "======================================"
+
           systemctl is-active --quiet braintrain-backend
+
+          echo "Backend is running."
+
+          # ------------------------------------------------
+          # Verify frontend
+          # ------------------------------------------------
+          echo "======================================"
+          echo "Checking frontend"
+          echo "======================================"
+
           systemctl is-active --quiet braintrain-frontend
 
-          echo "Deployment successful."
+          echo "Frontend is running."
+
+          # ------------------------------------------------
+          # Final status
+          # ------------------------------------------------
+          echo "======================================"
+          echo "BrainTrain deployment successful!"
+          echo "======================================"
 
           EOF
