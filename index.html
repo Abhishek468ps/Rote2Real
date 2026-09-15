@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Razorpay Payment</title>
+
+    <!-- Razorpay script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body>
+
+    <h2>Razorpay Payment Demo</h2>
+
+    <button onclick="payNow()">Pay ₹500</button>
+
+    <script>
+        async function payNow() {
+
+            // 🔹 Step 1: Backend call
+            const res = await fetch("http://localhost:8080/payment/create-order?amount=500", {
+                method: "POST"
+            });
+
+            const data = await res.json();
+            console.log("Order Data:", data);
+
+            // 🔹 Step 2: Razorpay options
+            const options = {
+                key: "rzp_live_SVMrDaEFGYxucD", // 👈 apna key daalo
+                amount: data.amount,
+                currency: data.currency,
+                name: "BrainTrain",
+                description: "Test Payment",
+                order_id: data.id,
+
+                handler: function (response) {
+                    alert("Payment Successful!");
+
+                    console.log("Payment ID:", response.razorpay_payment_id);
+                    console.log("Order ID:", response.razorpay_order_id);
+                    console.log("Signature:", response.razorpay_signature);
+                },
+
+                prefill: {
+                    name: "Monika",
+                    email: "test@example.com",
+                    contact: "9999999999"
+                },
+
+                theme: {
+                    color: "#3399cc"
+                }
+            };
+
+            // 🔹 Step 3: Open Razorpay
+            const rzp = new Razorpay(options);
+            rzp.open();
+        }
+    </script>
+
+</body>
+</html>
