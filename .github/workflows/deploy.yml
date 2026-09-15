@@ -1,0 +1,89 @@
+name: BrainTrain Production Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: braintrain-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+
+      - name: Build backend
+        working-directory: backend
+        run: mvn clean package -DskipTests
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DROPLET_SSH_KEY }}" > ~/.ssh/braintrain
+          chmod 600 ~/.ssh/braintrain
+          ssh-keyscan -H "${{ secrets.DROPLET_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy to DigitalOcean
+        run: |
+          ssh -i ~/.ssh/braintrain \
+            ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
+
+          set -e
+
+          cd /opt/braintrain/braintrain-website
+
+          echo "Updating source..."
+          git fetch origin
+          git reset --hard origin/main
+
+          echo "Building backend..."
+          cd backend
+          mvn clean package -DskipTests
+
+          echo "Building frontend..."
+          cd ../frontend
+          npm ci
+          npm run build
+
+          echo "Restarting backend..."
+          systemctl restart braintrain-backend
+
+          echo "Restarting frontend..."
+          systemctl restart braintrain-frontend
+
+          echo "Checking services..."
+          systemctl is-active --quiet braintrain-backend
+          systemctl is-active --quiet braintrain-frontend
+
+          echo "Deployment successful."
+
+          EOF
