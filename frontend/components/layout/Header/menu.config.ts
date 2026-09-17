@@ -176,12 +176,11 @@ export const MENU: MenuGroup[] = [
       items: [
 
         {
-          title: "BrainzTalks",
-          description: "Learning Management Platform",
-          href: "https://brainztalks.com",
-          icon: BookOpen,
-          badge: "POPULAR",
-        },
+  title: "Login",
+  description: "Access your Brain Train account",
+  href: "/login",
+  icon: UserCheck,
+},
 
         {
           title: "Srishtizia Product 1",
