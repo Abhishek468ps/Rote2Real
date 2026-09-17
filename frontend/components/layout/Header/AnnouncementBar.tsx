@@ -54,7 +54,7 @@ const ANNOUNCEMENTS: Announcement[] = [
 
 
   {
-    id: 4,
+    id: 5,
     icon: <Sparkles size={16} />,
     title: "Srishtizia Product 2",
     description:
