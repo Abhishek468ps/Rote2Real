@@ -58,12 +58,10 @@ export default function HeaderActions({
           Ctrl K
         </kbd>
       </button>
-
-      {/* BrainzTalks */}
+ {/* Login */}
 
       <Link
-        href="https://brainztalks.com"
-        target="_blank"
+        href="/login"
         className="
         group
         flex
@@ -86,12 +84,12 @@ export default function HeaderActions({
           group-hover:text-white
           "
         >
-          BrainzTalks
+          Login
         </span>
 
-        <ExternalLink
+        <ArrowRight
           size={16}
-          className="group-hover:text-white"
+          className="text-cyan-300 group-hover:text-white transition-transform group-hover:translate-x-1"
         />
       </Link>
 
