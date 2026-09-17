@@ -52,18 +52,9 @@ const ANNOUNCEMENTS: Announcement[] = [
     badge: "NEW",
   },
 
-  {
-    id: 4,
-    icon: <Cpu size={16} />,
-    title: "Thin Client Labs",
-    description:
-      "Cloud Development Workspace for Students.",
-    href: "/thin-client",
-    badge: "BETA",
-  },
 
   {
-    id: 5,
+    id: 4,
     icon: <Sparkles size={16} />,
     title: "Srishtizia Product 2",
     description:
