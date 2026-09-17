@@ -215,13 +215,22 @@ export default function HeroSection() {
 
         {/* CTA Buttons */}
         <div className="mt-10 flex flex-wrap justify-center items-center gap-4">
-          <Link
-            href="/join"
-            className="inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 px-7 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl shadow-indigo-600/30 hover:shadow-indigo-500/50 border border-purple-400/30 transition-all duration-200 active:scale-[0.97]"
-          >
-            <span>Join Ecosystem</span>
-            <ArrowRight size={18} />
-          </Link>
+         <Link
+  href="/join"
+  className="group relative inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-cyan-500 px-7 py-3.5 text-xs sm:text-sm font-bold text-white shadow-[0_0_30px_rgba(99,102,241,0.45)] border border-indigo-300/40 hover:shadow-[0_0_45px_rgba(139,92,246,0.65)] hover:scale-[1.03] transition-all duration-300 active:scale-[0.97]"
+>
+  <Sparkles
+    size={16}
+    className="text-cyan-200 animate-pulse"
+  />
+
+  <span>Start Your MVP</span>
+
+  <ArrowRight
+    size={18}
+    className="transition-transform duration-300 group-hover:translate-x-1"
+  />
+</Link>
 
           <Link
             href="/evaluation"
