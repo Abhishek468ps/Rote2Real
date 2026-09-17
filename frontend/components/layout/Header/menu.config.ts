@@ -1,6 +1,5 @@
 import {
   Brain,
-  Cpu,
   GraduationCap,
   BookOpen,
   Trophy,
@@ -99,12 +98,7 @@ export const MENU: MenuGroup[] = [
           badge: "NEW",
         },
 
-        {
-          title: "Thin Client Labs",
-          description: "Cloud development workspace",
-          href: "/thin-client",
-          icon: Monitor,
-        },
+        
 
         {
           title: "Brain Train Cloud",
