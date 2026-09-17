@@ -85,7 +85,7 @@ public class AdminInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        String adminEmail = "monikasingh8234@gmail.com";
+        String adminEmail = "admin@braintrainllp.in";
         String adminBraintrainId = "BT-ADM-2026-0001";
 
         // Check by BrainTrain ID first
