@@ -154,14 +154,16 @@ export default function MobileDrawer({
 
             {/* DRAWER FOOTER CTAS */}
             <div className="p-5 border-t border-slate-800/80 bg-slate-950/80 space-y-2.5">
-              <Link
-                href="https://brainztalks.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 py-3 text-xs sm:text-sm font-semibold text-slate-200 hover:text-white transition"
-              >
-                Open BrainzTalks
-              </Link>
+             <Link
+  href="/login"
+  onClick={() => {
+    setOpenMenu(null);
+    onClose();
+  }}
+  className="flex items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 py-3 text-xs sm:text-sm font-semibold text-slate-200 hover:text-white transition"
+>
+  Login
+</Link>
               <Link
                 href="/join"
                 onClick={() => {
