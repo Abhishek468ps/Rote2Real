@@ -215,13 +215,21 @@ export default function HeroSection() {
 
         {/* CTA Buttons */}
         <div className="mt-10 flex flex-wrap justify-center items-center gap-4">
-         <Link
+  <Link
   href="/join"
-  className="group relative inline-flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-cyan-500 px-7 py-3.5 text-xs sm:text-sm font-bold text-white shadow-[0_0_30px_rgba(99,102,241,0.45)] border border-indigo-300/40 hover:shadow-[0_0_45px_rgba(139,92,246,0.65)] hover:scale-[1.03] transition-all duration-300 active:scale-[0.97]"
+  className="group relative inline-flex items-center gap-2.5 rounded-xl
+  bg-gradient-to-r from-red-500 via-orange-500 to-pink-500
+  px-7 py-3.5 text-xs sm:text-sm font-bold text-white
+  shadow-[0_0_30px_rgba(239,68,68,0.45)]
+  border border-red-300/40
+  hover:shadow-[0_0_45px_rgba(249,115,22,0.65)]
+  hover:scale-[1.04]
+  transition-all duration-300
+  active:scale-[0.97]"
 >
   <Sparkles
     size={16}
-    className="text-cyan-200 animate-pulse"
+    className="text-yellow-100 animate-pulse"
   />
 
   <span>Start Your MVP</span>
