@@ -345,6 +345,7 @@ if (step === 3) {
     "Marketing",
     "Business",
     "Biotechnology",
+    "Other",
   ];
 
   const capabilities = [
@@ -362,12 +363,19 @@ if (step === 3) {
     "Networking / introduction",
   ];
 
+   const studentLevels = [
+    "Beginner",
+    "Intermediate",
+    "Advanced",
+  ];
+
   const mvpTypes = [
     "Software Development",
     "AI / ML",
     "Data Analytics",
     "Product / Startup",
     "UI / UX",
+    "Other",
   ];
 
   return (
