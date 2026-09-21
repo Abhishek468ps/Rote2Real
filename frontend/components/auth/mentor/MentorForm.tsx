@@ -50,6 +50,33 @@ const [
   linkedinProfile: "",
   githubProfile: "",
   portfolioWebsite: "",
+
+   // Mentor capabilities
+  skills: [] as string[],
+  mentoringCapabilities: [] as string[],
+
+  // Mentoring capacity
+  mentoringHoursPerWeek: "",
+  maximumStudents: "",
+  mentoringMode: "",
+  preferredStudentLevel: "",
+
+  // MVP preferences
+  mvpTypes: [] as string[],
+
+  // Availability
+  availabilityDays: [] as string[],
+  availabilityTime: "",
+
+  // Contribution preferences
+  contributionTypes: [] as string[],
+  sponsorshipType: "",
+
+  // Additional contribution capabilities
+  canReviewProjects: false,
+  canDemonstrateProjects: false,
+  canProvideIndustryProblem: false,
+  canProvideNetworking: false,
 });
 
   const handleChange = (
