@@ -15,47 +15,6 @@ interface MentorFormProps {
   previousStep: () => void;
 }
 
-interface CheckboxOptionProps {
-  label: string;
-  checked: boolean;
-  onChange: () => void;
-}
-
-function CheckboxOption({
-  label,
-  checked,
-  onChange,
-}: CheckboxOptionProps) {
-  return (
-    <label
-      className="
-        flex
-        items-center
-        gap-3
-        rounded-xl
-        border
-        border-white/10
-        bg-white/[0.03]
-        px-4
-        py-3
-        cursor-pointer
-        hover:bg-white/[0.06]
-      "
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="h-4 w-4"
-      />
-
-      <span className="text-sm text-gray-300">
-        {label}
-      </span>
-    </label>
-  );
-}
-
 export default function MentorForm({
   step,
   nextStep,
@@ -1174,5 +1133,46 @@ function Input({
       />
 
     </div>
+  );
+}
+
+interface CheckboxOptionProps {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}
+
+function CheckboxOption({
+  label,
+  checked,
+  onChange,
+}: CheckboxOptionProps) {
+  return (
+    <label
+      className="
+        flex
+        items-center
+        gap-3
+        rounded-xl
+        border
+        border-white/10
+        bg-white/[0.03]
+        px-4
+        py-3
+        cursor-pointer
+        hover:bg-white/[0.06]
+      "
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="h-4 w-4"
+      />
+
+      <span className="text-sm text-gray-300">
+        {label}
+      </span>
+    </label>
   );
 }
