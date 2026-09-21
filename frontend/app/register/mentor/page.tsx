@@ -10,7 +10,7 @@ export default function MentorRegisterPage() {
   const [step, setStep] = useState(0);
 
   const nextStep = () => {
-    if (step < 5) {
+    if (step < 8) {
       setStep((prev) => prev + 1);
     }
   };
