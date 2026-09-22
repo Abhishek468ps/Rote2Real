@@ -399,20 +399,26 @@ private boolean getBoolean(
         RecruiterProfile profile =
                 new RecruiterProfile();
 
-        profile.setCompanyName(
-                (String) request.getProfile()
-                        .get("companyName")
-        );
+       profile.setCompanyName(
+        getString(
+                request,
+                "companyName"
+        )
+);
 
-        profile.setDesignation(
-                (String) request.getProfile()
-                        .get("designation")
-        );
+           profile.setDesignation(
+            getString(
+                    request,
+                    "designation"
+            )
+    );
 
-        profile.setHiringDomains(
-                (String) request.getProfile()
-                        .get("hiringDomains")
-        );
+    profile.setHiringDomains(
+            getString(
+                    request,
+                    "hiringDomains"
+            )
+    );
 
         profile.setUser(user);
 
@@ -426,20 +432,26 @@ private boolean getBoolean(
     TrainerProfile profile =
             new TrainerProfile();
 
-    profile.setExpertiseDomains(
-            (String) request.getProfile()
-                    .get("expertiseDomains")
-    );
+   profile.setExpertiseDomains(
+        getString(
+                request,
+                "expertiseDomains"
+        )
+);
 
-    profile.setYearsOfExperience(
-            (Integer) request.getProfile()
-                    .get("yearsOfExperience")
-    );
+   profile.setYearsOfExperience(
+        getInteger(
+                request,
+                "yearsOfExperience"
+        )
+);
 
-    profile.setTrainingExperience(
-            (String) request.getProfile()
-                    .get("trainingExperience")
-    );
+   profile.setTrainingExperience(
+        getString(
+                request,
+                "trainingExperience"
+        )
+);
 
     profile.setUser(user);
 
@@ -454,19 +466,25 @@ private void registerDoctor(
     DoctorProfile profile =
             new DoctorProfile();
 
-    profile.setSpecialization(
-            (String) request.getProfile()
-                    .get("specialization")
+     profile.setSpecialization(
+            getString(
+                    request,
+                    "specialization"
+            )
     );
 
     profile.setHospitalName(
-            (String) request.getProfile()
-                    .get("hospitalName")
+            getString(
+                    request,
+                    "hospitalName"
+            )
     );
 
     profile.setMedicalCouncilRegistrationNumber(
-            (String) request.getProfile()
-                    .get("medicalCouncilRegistrationNumber")
+            getString(
+                    request,
+                    "medicalCouncilRegistrationNumber"
+            )
     );
 
     profile.setUser(user);
@@ -484,13 +502,17 @@ private void registerLawyer(
 
 
     profile.setLawFirmName(
-            (String) request.getProfile()
-                    .get("lawFirmName")
+            getString(
+                    request,
+                    "lawFirmName"
+            )
     );
 
     profile.setBarCouncilRegistrationNumber(
-            (String) request.getProfile()
-                    .get("barCouncilRegistrationNumber")
+            getString(
+                    request,
+                    "barCouncilRegistrationNumber"
+            )
     );
 
     profile.setUser(user);
@@ -505,19 +527,25 @@ private void registerInstitution(
     InstitutionProfile profile =
             new InstitutionProfile();
 
-    profile.setInstitutionName(
-            (String) request.getProfile()
-                    .get("institutionName")
+   profile.setInstitutionName(
+            getString(
+                    request,
+                    "institutionName"
+            )
     );
 
     profile.setInstitutionType(
-            (String) request.getProfile()
-                    .get("institutionType")
+            getString(
+                    request,
+                    "institutionType"
+            )
     );
 
     profile.setWebsite(
-            (String) request.getProfile()
-                    .get("website")
+            getString(
+                    request,
+                    "website"
+            )
     );
 
     profile.setUser(user);
@@ -532,19 +560,26 @@ private void registerCompany(
     CompanyProfile profile =
             new CompanyProfile();
 
+  
     profile.setCompanyName(
-            (String) request.getProfile()
-                    .get("companyName")
+            getString(
+                    request,
+                    "companyName"
+            )
     );
 
     profile.setIndustryType(
-            (String) request.getProfile()
-                    .get("industryType")
+            getString(
+                    request,
+                    "industryType"
+            )
     );
 
     profile.setWebsite(
-            (String) request.getProfile()
-                    .get("website")
+            getString(
+                    request,
+                    "website"
+            )
     );
 
     profile.setUser(user);
@@ -559,19 +594,26 @@ private void registerJudge(
     JudgeProfile profile =
             new JudgeProfile();
 
+  
     profile.setOrganizationName(
-            (String) request.getProfile()
-                    .get("organizationName")
+            getString(
+                    request,
+                    "organizationName"
+            )
     );
 
     profile.setDesignation(
-            (String) request.getProfile()
-                    .get("designation")
+            getString(
+                    request,
+                    "designation"
+            )
     );
 
     profile.setExpertiseDomain(
-            (String) request.getProfile()
-                    .get("expertiseDomain")
+            getString(
+                    request,
+                    "expertiseDomain"
+            )
     );
 
     profile.setUser(user);
@@ -587,18 +629,24 @@ private void registerViewer(
             new ViewerProfile();
 
     profile.setOrganizationName(
-            (String) request.getProfile()
-                    .get("organizationName")
+            getString(
+                    request,
+                    "organizationName"
+            )
     );
 
     profile.setDesignation(
-            (String) request.getProfile()
-                    .get("designation")
+            getString(
+                    request,
+                    "designation"
+            )
     );
 
     profile.setPurposeOfJoining(
-            (String) request.getProfile()
-                    .get("purposeOfJoining")
+            getString(
+                    request,
+                    "purposeOfJoining"
+            )
     );
 
     profile.setUser(user);
