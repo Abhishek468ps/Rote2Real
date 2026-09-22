@@ -133,32 +133,218 @@ private final ViewerProfileRepository viewerRepository;
     // ==========================================
 
     private void registerMentor(
-            User user,
-            RegisterRequest request
-    ) {
+        User user,
+        RegisterRequest request
+) {
 
-        MentorProfile profile =
-                new MentorProfile();
+    MentorProfile profile =
+            new MentorProfile();
 
-        profile.setOrganizationName(
-                (String) request.getProfile()
-                        .get("organizationName")
-        );
+    // ==========================================
+    // PROFESSIONAL PROFILE
+    // ==========================================
 
-        profile.setDesignation(
-                (String) request.getProfile()
-                        .get("designation")
-        );
+    profile.setOrganizationName(
+            getString(
+                    request,
+                    "organizationName"
+            )
+    );
 
-        profile.setExpertiseDomain(
-                (String) request.getProfile()
-                        .get("expertiseDomain")
-        );
+    profile.setDesignation(
+            getString(
+                    request,
+                    "designation"
+            )
+    );
 
-        profile.setUser(user);
+    profile.setExpertiseDomain(
+            getString(
+                    request,
+                    "expertiseDomain"
+            )
+    );
 
-        mentorRepository.save(profile);
-    }
+    profile.setYearsOfExperience(
+            getInteger(
+                    request,
+                    "yearsOfExperience"
+            )
+    );
+
+    profile.setLinkedinProfile(
+            getString(
+                    request,
+                    "linkedinProfile"
+            )
+    );
+
+    profile.setGithubProfile(
+            getString(
+                    request,
+                    "githubProfile"
+            )
+    );
+
+    profile.setPortfolioWebsite(
+            getString(
+                    request,
+                    "portfolioWebsite"
+            )
+    );
+
+    // ==========================================
+    // MENTOR SKILLS & CAPABILITIES
+    // ==========================================
+
+    profile.setSkills(
+            getListAsString(
+                    request,
+                    "skills"
+            )
+    );
+
+    profile.setMentoringCapabilities(
+            getListAsString(
+                    request,
+                    "mentoringCapabilities"
+            )
+    );
+
+    // ==========================================
+    // MENTORING CAPACITY
+    // ==========================================
+
+    profile.setMentoringHoursPerWeek(
+            getString(
+                    request,
+                    "mentoringHoursPerWeek"
+            )
+    );
+
+    profile.setMaximumStudents(
+            getString(
+                    request,
+                    "maximumStudents"
+            )
+    );
+
+    profile.setMentoringMode(
+            getString(
+                    request,
+                    "mentoringMode"
+            )
+    );
+
+    // ==========================================
+    // STUDENT PREFERENCES
+    // ==========================================
+
+    profile.setPreferredStudentLevels(
+            getListAsString(
+                    request,
+                    "preferredStudentLevels"
+            )
+    );
+
+    profile.setMvpTypes(
+            getListAsString(
+                    request,
+                    "mvpTypes"
+            )
+    );
+
+    // ==========================================
+    // AVAILABILITY
+    // ==========================================
+
+    profile.setAvailabilityDays(
+            getListAsString(
+                    request,
+                    "availabilityDays"
+            )
+    );
+
+    profile.setAvailabilityTime(
+            getString(
+                    request,
+                    "availabilityTime"
+            )
+    );
+
+    // ==========================================
+    // CONTRIBUTION PREFERENCES
+    // ==========================================
+
+    profile.setContributionTypes(
+            getListAsString(
+                    request,
+                    "contributionTypes"
+            )
+    );
+
+    profile.setSponsorshipType(
+            getString(
+                    request,
+                    "sponsorshipType"
+            )
+    );
+
+    // ==========================================
+    // CAPABILITIES
+    // ==========================================
+
+    profile.setCanReviewProjects(
+            getBoolean(
+                    request,
+                    "canReviewProjects"
+            )
+    );
+
+    profile.setCanDemonstrateProjects(
+            getBoolean(
+                    request,
+                    "canDemonstrateProjects"
+            )
+    );
+
+    profile.setCanProvideIndustryProblem(
+            getBoolean(
+                    request,
+                    "canProvideIndustryProblem"
+            )
+    );
+
+    profile.setCanProvideNetworking(
+            getBoolean(
+                    request,
+                    "canProvideNetworking"
+            )
+    );
+
+    // ==========================================
+    // RESUME
+    // ==========================================
+
+    profile.setResumeUrl(
+            getString(
+                    request,
+                    "resumeUrl"
+            )
+    );
+
+    // ==========================================
+    // USER RELATION
+    // ==========================================
+
+    profile.setUser(user);
+
+    // ==========================================
+    // SAVE MENTOR PROFILE
+    // ==========================================
+
+    mentorRepository.save(profile);
+}
 
     private void registerRecruiter(
             User user,
