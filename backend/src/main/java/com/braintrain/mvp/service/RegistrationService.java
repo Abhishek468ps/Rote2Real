@@ -1,4 +1,4 @@
-/*ackage com.braintrain.mvp.service;
+package com.braintrain.mvp.service;
 
 import com.braintrain.mvp.dto.request.RegisterRequest;
 import com.braintrain.mvp.entity.*;
@@ -99,6 +99,38 @@ private final ViewerProfileRepository viewerRepository;
 
         studentRepository.save(profile);
     }
+    
+   // ==========================================
+    // MENTOR HELPER METHODS
+    // ==========================================
+
+    private String getString(
+            RegisterRequest request,
+            String field
+    ) {
+        Object value =
+                request.getProfile().get(field);
+
+        return value != null
+                ? value.toString()
+                : null;
+    }
+
+
+    private String getListAsString(
+            RegisterRequest request,
+            String field
+    ) {
+        Object value =
+                request.getProfile().get(field);
+
+        return value != null
+                ? value.toString()
+                : null;
+    }
+      // ==========================================
+    // MENTOR REGISTRATION
+    // ==========================================
 
     private void registerMentor(
             User user,
@@ -342,17 +374,4 @@ private void registerViewer(
 
     viewerRepository.save(profile);
 }
-}*/
-
-
-package com.braintrain.mvp.service;
-
-import com.braintrain.mvp.dto.request.RegisterRequest;
-import com.braintrain.mvp.dto.response.RegistrationResponse;
-
-public interface RegistrationService {
-
-    RegistrationResponse register(
-            RegisterRequest request
-    );
 }
