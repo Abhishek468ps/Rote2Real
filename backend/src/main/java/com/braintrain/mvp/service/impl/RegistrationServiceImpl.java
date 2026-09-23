@@ -139,14 +139,23 @@ if (
                     registerViewer(user, request);
         }
 
-        emailService.sendWelcomeEmail(user);
+       try {
+    emailService.sendWelcomeEmail(user);
+} catch (Exception e) {
+    System.err.println(
+            "WARNING: Welcome email failed for "
+                    + user.getEmail()
+    );
 
-        return new RegistrationResponse(
-                user.getId(),
-                user.getBraintrainId(),
-                user.getRole().name(),
-                "Registration Successful"
-        );
+    e.printStackTrace();
+}
+
+return new RegistrationResponse(
+        user.getId(),
+        user.getBraintrainId(),
+        user.getRole().name(),
+        "Registration Successful"
+);
     }
 
     private void registerStudent(
