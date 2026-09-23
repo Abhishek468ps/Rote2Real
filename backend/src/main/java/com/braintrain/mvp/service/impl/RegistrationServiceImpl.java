@@ -482,10 +482,9 @@ private void registerMentor(
                         .get("expertiseDomains")
         );
 
-        profile.setYearsOfExperience(
-                (Integer) request.getProfile()
-                        .get("yearsOfExperience")
-        );
+           profile.setYearsOfExperience(
+            getInteger(request, "yearsOfExperience")
+    );
 
         profile.setTrainingExperience(
                 (String) request.getProfile()
