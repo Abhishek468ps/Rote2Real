@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.braintrain.mvp.repository.*;
 import com.braintrain.mvp.entity.EmailOtp;
 import com.braintrain.mvp.utils.BrainTrainIdGenerator;
@@ -46,6 +47,7 @@ public class RegistrationServiceImpl
     private final PasswordEncoder passwordEncoder;
 
     @Override
+                @Transactional
     public RegistrationResponse register(
             RegisterRequest request
     ) {
@@ -155,43 +157,29 @@ if (
         StudentProfile profile =
                 new StudentProfile();
 
-        profile.setCollege(
-                (String) request.getProfile()
-                        .get("college")
-        );
-
-        profile.setDegree(
-                (String) request.getProfile()
-                        .get("degree")
-        );
-
-        profile.setDepartment(
-                (String) request.getProfile()
-                        .get("department")
-        );
-
-        profile.setGraduationYear(
-        ((Number) request.getProfile()
-                .get("graduationYear"))
-                .intValue()
+     profile.setCollege(
+        getString(request, "college")
 );
 
+profile.setDegree(
+        getString(request, "degree")
+);
+
+profile.setDepartment(
+        getString(request, "department")
+);
+
+profile.setGraduationYear(
+        getInteger(request, "graduationYear")
+);
+
+
 profile.setSkills(
-        (String)
-                request
-                        .getProfile()
-                        .get(
-                                "skills"
-                        )
+        getString(request, "skills")
 );
 
 profile.setResumeUrl(
-        (String)
-                request
-                        .getProfile()
-                        .get(
-                                "resumeUrl"
-                        )
+        getString(request, "resumeUrl")
 );
 
 // ==============================
@@ -208,9 +196,21 @@ profile.setResumeUrl(
         );
     }
 
-    Long domainId =
-            ((Number) domainIdObject).longValue();
+   Long domainId;
 
+if (domainIdObject instanceof Number) {
+    domainId = ((Number) domainIdObject).longValue();
+} else {
+    try {
+        domainId = Long.parseLong(
+                domainIdObject.toString()
+        );
+    } catch (NumberFormatException e) {
+        throw new RuntimeException(
+                "Invalid MVP domain ID"
+        );
+    }
+}
     MvpDomain domain =
             mvpDomainRepository
                     .findById(domainId)
