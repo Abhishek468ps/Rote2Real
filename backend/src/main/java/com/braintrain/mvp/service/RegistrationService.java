@@ -78,24 +78,21 @@ private final ViewerProfileRepository viewerRepository;
                 new StudentProfile();
 
         profile.setCollege(
-                (String) request.getProfile()
-                        .get("college")
-        );
+            getString(request, "college")
+    );
 
-        profile.setDegree(
-                (String) request.getProfile()
-                        .get("degree")
-        );
+    profile.setDegree(
+            getString(request, "degree")
+    );
 
-        profile.setDepartment(
-                (String) request.getProfile()
-                        .get("department")
-        );
+    profile.setDepartment(
+            getString(request, "department")
+    );
 
-        profile.setGraduationYear(
-                (Integer) request.getProfile()
-                        .get("graduationYear")
-        );
+    profile.setGraduationYear(
+            getInteger(request, "graduationYear")
+    );
+
 
         profile.setUser(user);
 
