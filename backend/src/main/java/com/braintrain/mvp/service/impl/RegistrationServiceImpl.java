@@ -227,6 +227,66 @@ profile.setResumeUrl(
         studentProfileRepository.save(profile);
     }
 
+    private String getString(
+        RegisterRequest request,
+        String field
+) {
+    Object value = request.getProfile().get(field);
+
+    return value != null
+            ? value.toString()
+            : null;
+} 
+
+                private String getListAsString(
+        RegisterRequest request,
+        String field
+) {
+    Object value = request.getProfile().get(field);
+
+    return value != null
+            ? value.toString()
+            : null;
+}
+
+                private Integer getInteger(
+        RegisterRequest request,
+        String field
+) {
+    Object value = request.getProfile().get(field);
+
+    if (value == null) {
+        return null;
+    }
+
+    if (value instanceof Number) {
+        return ((Number) value).intValue();
+    }
+
+    try {
+        return Integer.parseInt(value.toString());
+    } catch (NumberFormatException e) {
+        return null;
+    }
+}
+
+    private boolean getBoolean(
+        RegisterRequest request,
+        String field
+) {
+    Object value = request.getProfile().get(field);
+
+    if (value == null) {
+        return false;
+    }
+
+    if (value instanceof Boolean) {
+        return (Boolean) value;
+    }
+
+    return Boolean.parseBoolean(value.toString());
+}            
+
 private void registerMentor(
         User user,
         RegisterRequest request
