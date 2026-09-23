@@ -543,10 +543,12 @@ private void registerMentor(
                         .get("specialization")
         );
 
-        profile.setYearsOfExperience(
-                (Integer) request.getProfile()
-                        .get("yearsOfExperience")
-        );
+       profile.setYearsOfExperience(
+        getInteger(
+                request,
+                "yearsOfExperience"
+        )
+);
 
         profile.setUser(user);
 
@@ -569,9 +571,11 @@ private void registerMentor(
         
 
         profile.setYearsOfExperience(
-                (Integer) request.getProfile()
-                        .get("yearsOfExperience")
-        );
+        getInteger(
+                request,
+                "yearsOfExperience"
+        )
+);
 
         profile.setUser(user);
 
@@ -653,9 +657,11 @@ private void registerMentor(
         );
 
         profile.setYearsOfExperience(
-                (Integer) request.getProfile()
-                        .get("yearsOfExperience")
-        );
+        getInteger(
+                request,
+                "yearsOfExperience"
+        )
+);
 
         profile.setUser(user);
 
