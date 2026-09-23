@@ -63,8 +63,5 @@ public class RegisterRequest {
     @NotNull(message = "Profile data is required")
     private Map<String, Object> profile;
 
-    /*
-     * Role specific data
-     */
-    private Map<String, Object> profile;
+ 
 }
