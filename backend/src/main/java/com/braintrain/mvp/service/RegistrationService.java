@@ -5,6 +5,7 @@ import com.braintrain.mvp.entity.*;
 import com.braintrain.mvp.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ private final CompanyProfileRepository companyRepository;
 private final JudgeProfileRepository judgeRepository;
 private final ViewerProfileRepository viewerRepository;
 
+    @Transactional
     public void register(RegisterRequest request) {
 
         User user = new User();
