@@ -17,7 +17,13 @@ import com.braintrain.mvp.service.AuthService;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(
+    origins = {
+        "http://localhost:3000",
+        "https://braintrainllp.in",
+        "https://www.braintrainllp.in"
+    }
+)
 public class AuthController {
 
     private final RegistrationService registrationService;
