@@ -2,61 +2,98 @@ package com.braintrain.mvp.service.impl;
 
 import com.braintrain.mvp.entity.EmailOtp;
 import com.braintrain.mvp.repository.EmailOtpRepository;
+import com.braintrain.mvp.service.EmailService;
 import com.braintrain.mvp.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Random;
-import com.braintrain.mvp.service.EmailService;
 
 @Service
 @RequiredArgsConstructor
-public class OtpServiceImpl
-        implements OtpService {
+public class OtpServiceImpl implements OtpService {
 
-    private final EmailOtpRepository
-            otpRepository;
-
-    private final EmailService emailService;        
+    private final EmailOtpRepository otpRepository;
+    private final EmailService emailService;
 
     @Override
-    public void sendOtp(
-            String email
-    ) {
+    public void sendOtp(String email) {
 
-        String otp =
-                String.valueOf(
-                        100000 +
-                        new Random()
-                                .nextInt(
-                                        900000
-                                )
-                );
+        System.out.println("========== SEND OTP START ==========");
+        System.out.println("OTP requested for email: " + email);
 
-        EmailOtp emailOtp =
-                new EmailOtp();
+        try {
 
-        emailOtp.setEmail(email);
-        emailOtp.setOtp(otp);
-        emailOtp.setVerified(false);
-        emailOtp.setExpiryTime(
-                LocalDateTime.now()
-                        .plusMinutes(10)
-        );
+            // Generate 6-digit OTP
+            String otp =
+                    String.valueOf(
+                            100000 +
+                            new Random().nextInt(900000)
+                    );
 
-        otpRepository.save(
-                emailOtp
-        );
+            System.out.println(
+                    "OTP generated successfully"
+            );
 
-        System.out.println(
-                "OTP = " + otp
-        );
+            // Create OTP entity
+            EmailOtp emailOtp = new EmailOtp();
 
-        emailService.sendOtpEmail(
-        email,
-        otp
-);
+            emailOtp.setEmail(email);
+            emailOtp.setOtp(otp);
+            emailOtp.setVerified(false);
+
+            emailOtp.setExpiryTime(
+                    LocalDateTime.now()
+                            .plusMinutes(10)
+            );
+
+            // Save OTP
+            System.out.println(
+                    "Saving OTP to database..."
+            );
+
+            otpRepository.save(emailOtp);
+
+            System.out.println(
+                    "OTP saved successfully"
+            );
+
+            // Send email
+            System.out.println(
+                    "Sending OTP email..."
+            );
+
+            emailService.sendOtpEmail(
+                    email,
+                    otp
+            );
+
+            System.out.println(
+                    "OTP email sent successfully"
+            );
+
+            System.out.println(
+                    "========== SEND OTP END =========="
+            );
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "========== OTP SEND FAILED =========="
+            );
+
+            System.err.println(
+                    "Email: " + email
+            );
+
+            e.printStackTrace();
+
+            throw new RuntimeException(
+                    "Failed to send OTP",
+                    e
+            );
+        }
     }
 
     @Override
@@ -72,28 +109,29 @@ public class OtpServiceImpl
                         )
                         .orElse(null);
 
+        if (emailOtp == null) {
+            return false;
+        }
+
+        // OTP match
+        if (!emailOtp.getOtp().equals(otp)) {
+            return false;
+        }
+
+        // OTP expiry
         if (
-                emailOtp == null
+                emailOtp
+                        .getExpiryTime()
+                        .isBefore(LocalDateTime.now())
         ) {
             return false;
         }
 
-      // OTP match check
-    if (!emailOtp.getOtp().equals(otp)) {
-        return false;
+        // Mark verified
+        emailOtp.setVerified(true);
+
+        otpRepository.save(emailOtp);
+
+        return true;
     }
-
-    // Expiry check
-    if (emailOtp.getExpiryTime().isBefore(LocalDateTime.now())) {
-        return false;
-    }
-
-    // Mark email as verified
-    emailOtp.setVerified(true);
-
-    // Save updated record
-    otpRepository.save(emailOtp);
-
-    return true;
-}
 }
