@@ -50,3 +50,6 @@ logs/
 
 # Coverage
 coverage/
+
+# Runtime user uploads
+backend/uploads/

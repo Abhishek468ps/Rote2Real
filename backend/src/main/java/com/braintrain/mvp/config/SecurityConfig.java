@@ -113,6 +113,11 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
+                        // Health check
+                        .requestMatchers(
+                                "/api/health"
+                        ).permitAll()
+
                         // Authentication
                         .requestMatchers(
                                 "/api/auth/**"
