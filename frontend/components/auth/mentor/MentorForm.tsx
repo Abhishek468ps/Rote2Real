@@ -6,7 +6,7 @@ import FileUpload from "../common/FileUpload";
 import OTPVerification from "../common/OTPVerification";
 import TermsAndPolicies from "../common/TermsAndPolicies";
 import SuccessScreen from "../common/SuccessScreen";
-
+import { API_ENDPOINTS } from "@/lib/api";
 
 
 interface MentorFormProps {
@@ -24,12 +24,19 @@ export default function MentorForm({
 
   const [resume, setResume] =
     useState<File | null>(null);
+    const [resumeUrl, setResumeUrl] = useState("");
+const [isUploadingResume, setIsUploadingResume] =
+  useState(false);
 
   const [acceptedTerms, setAcceptedTerms] =
   useState(false);
 
 const [acceptedPrivacy, setAcceptedPrivacy] =
   useState(false);
+
+  const [isRegistering, setIsRegistering] = useState(false);
+const [registrationError, setRegistrationError] = useState("");
+const [brainTrainId, setBrainTrainId] = useState("");
 
 const [
   acceptedCommunication,
@@ -78,6 +85,166 @@ const [
   canProvideIndustryProblem: false,
   canProvideNetworking: false,
 });
+
+const handleResumeUpload = async (file: File) => {
+  try {
+    setIsUploadingResume(true);
+    setRegistrationError("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(
+      API_ENDPOINTS.UPLOAD_RESUME,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data?.message ||
+        data?.error ||
+        "Resume upload failed"
+      );
+    }
+
+    setResumeUrl(
+      data.url ||
+      data.resumeUrl ||
+      data.fileUrl ||
+      ""
+    );
+
+  } catch (error) {
+    console.error(
+      "Resume upload error:",
+      error
+    );
+
+    setRegistrationError(
+      error instanceof Error
+        ? error.message
+        : "Resume upload failed"
+    );
+  } finally {
+    setIsUploadingResume(false);
+  }
+};
+
+const handleMentorRegistration = async () => {
+  try {
+    setIsRegistering(true);
+    setRegistrationError("");
+
+    const payload = {
+      fullName: form.fullName,
+      email: form.email,
+      phone: form.phone,
+      password: "", // IMPORTANT: see note below
+      role: "MENTOR",
+
+      profile: {
+        expertiseDomain: form.expertiseDomain,
+        yearsOfExperience: form.yearsOfExperience,
+
+        organizationName: form.organizationName,
+        designation: form.designation,
+
+        linkedinProfile: form.linkedinProfile,
+        githubProfile: form.githubProfile,
+        portfolioWebsite: form.portfolioWebsite,
+
+        skills: form.skills,
+        mentoringCapabilities:
+          form.mentoringCapabilities,
+
+        mentoringHoursPerWeek:
+          form.mentoringHoursPerWeek,
+
+        maximumStudents:
+          form.maximumStudents,
+
+        mentoringMode:
+          form.mentoringMode,
+
+        preferredStudentLevels:
+          form.preferredStudentLevels,
+
+        mvpTypes:
+          form.mvpTypes,
+
+        availabilityDays:
+          form.availabilityDays,
+
+        availabilityTime:
+          form.availabilityTime,
+
+        contributionTypes:
+          form.contributionTypes,
+
+        sponsorshipType:
+          form.sponsorshipType,
+
+        canReviewProjects:
+          form.canReviewProjects,
+
+        canDemonstrateProjects:
+          form.canDemonstrateProjects,
+
+        canProvideIndustryProblem:
+          form.canProvideIndustryProblem,
+
+        canProvideNetworking:
+          form.canProvideNetworking,
+
+       resumeUrl: resumeUrl || null,
+      },
+    };
+
+    const response = await fetch(
+      API_ENDPOINTS.REGISTER,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data?.message ||
+        data?.error ||
+        "Mentor registration failed"
+      );
+    }
+
+    setBrainTrainId(data.brainTrainId);
+
+    nextStep();
+
+  } catch (error) {
+    console.error(
+      "Mentor registration error:",
+      error
+    );
+
+    setRegistrationError(
+      error instanceof Error
+        ? error.message
+        : "Registration failed"
+    );
+  } finally {
+    setIsRegistering(false);
+  }
+};
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -970,12 +1137,21 @@ if (step === 5) {
   if (step === 6) {
     return (
       <>
-        <FileUpload
-          label="Upload Resume / Portfolio"
-          accept=".pdf,.doc,.docx"
-          maxSizeMB={10}
-          onFileSelect={setResume}
-        />
+   <FileUpload
+  label="Upload Resume / Portfolio"
+  accept=".pdf,.doc,.docx"
+  maxSizeMB={10}
+  onFileSelect={(file) => {
+    if (!file) {
+      setResume(null);
+      setResumeUrl("");
+      return;
+    }
+
+    setResume(file);
+    handleResumeUpload(file);
+  }}
+/>
 
         <div className="mt-10 flex justify-between">
 
@@ -1054,18 +1230,20 @@ if (step === 5) {
             !acceptedPrivacy ||
             !acceptedCommunication
           }
-          onClick={nextStep}
-          className="
-          rounded-2xl
-          bg-indigo-600
-          px-8 py-4
-          text-white
-          disabled:opacity-50
-          disabled:cursor-not-allowed
-          "
-        >
-          Create Account
-        </button>
+          onClick={handleMentorRegistration}
+  className="
+    rounded-2xl
+    bg-indigo-600
+    px-8 py-4
+    text-white
+    disabled:opacity-50
+    disabled:cursor-not-allowed
+  "
+>
+  {isRegistering
+    ? "Creating Account..."
+    : "Create Account"}
+</button>
 
       </div>
     </>
@@ -1078,12 +1256,12 @@ if (step === 5) {
 
   if (step === 8) {
   return (
-    <SuccessScreen
-      fullName={form.fullName}
-      role="Mentor"
-      brainTrainId="BT-MEN-2026-0001"
-      dashboardUrl="/dashboard/mentor"
-    />
+<SuccessScreen
+  fullName={form.fullName}
+  role="Mentor"
+  brainTrainId={brainTrainId}
+  dashboardUrl="/dashboard/mentor"
+/>
   );
 }
 
