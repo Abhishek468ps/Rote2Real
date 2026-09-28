@@ -37,7 +37,7 @@ export default function SuccessScreen({
 
     const interval = setInterval(() => {
       setCountdown((prev) => prev - 1);
-    }, 2000);
+    }, 1000);
 
     return () =>
       clearInterval(interval);
