@@ -153,6 +153,7 @@ export const API_ENDPOINTS = {
   UPLOAD_RESUME: `${API_BASE_URL}/files/resume`,
   STUDENT_ME: `${API_BASE_URL}/student/me`,
   ADMIN_ME: `${API_BASE_URL}/admin/me`,
+  MENTOR_ME: `${API_BASE_URL}/api/mentors/me`,
   ADMIN_USERS: `${API_BASE_URL}/admin/users`,
 ADMIN_USER_COUNT: `${API_BASE_URL}/admin/users/count`,
 ADMIN_PROFILE: `${API_BASE_URL}/admin/profile`,
