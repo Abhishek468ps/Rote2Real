@@ -139,6 +139,10 @@ switch (role) {
     profileEndpoint = API_ENDPOINTS.ADMIN_ME;
     break;
 
+     case "MENTOR":
+    profileEndpoint = API_ENDPOINTS.MENTOR_ME;
+    break;
+
   case "STUDENT":
     profileEndpoint = API_ENDPOINTS.STUDENT_ME;
     break;
