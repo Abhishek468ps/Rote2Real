@@ -159,6 +159,8 @@ public class SecurityConfig {
                                 "/api/admin/**"
                         ).hasRole("ADMIN")
 
+                        .requestMatchers("/api/mentor/**").hasRole("MENTOR")
+
                         // Student
                         .requestMatchers(
                                 "/api/student/**"
