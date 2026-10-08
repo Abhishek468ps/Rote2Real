@@ -18,6 +18,10 @@ public class Rote2RealRegistrationResponse {
     private String email;
     private String phone;
     private String country;
+    private String universityName;
+    private String courseDegree;
+    private String yearOfStudy;
+    private String track;
     private Boolean isInternational;
     private Long paymentAmountMinor;
     private String paymentCurrency;
@@ -25,4 +29,5 @@ public class Rote2RealRegistrationResponse {
     private String razorpayKeyId;
     private String paymentStatus;
     private LocalDateTime registeredAt;
+    private String message;
 }

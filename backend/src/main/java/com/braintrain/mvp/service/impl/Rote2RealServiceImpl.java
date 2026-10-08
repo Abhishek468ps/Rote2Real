@@ -68,25 +68,21 @@ public class Rote2RealServiceImpl implements Rote2RealService {
     public Rote2RealRegistrationResponse registerStudent(Rote2RealRegisterRequest request) {
         String email = request.getEmail().trim().toLowerCase();
 
-        // Check if student already registered
-        Rote2RealStudent student = studentRepository.findByEmail(email).orElse(null);
-
-        if (student != null && "PAID".equalsIgnoreCase(student.getPaymentStatus())) {
-            // Already enrolled and paid
-            return mapToRegistrationResponse(student);
+        if (studentRepository.findByEmail(email).isPresent()) {
+            throw new IllegalStateException("A registration already exists for this email address. Please use a different email.");
         }
 
-        // Determine pricing: India = ₹1 (100 paise), International = ₹10 INR equivalent
         Rote2RealPricingHelper.PricingInfo pricing = pricingHelper.resolvePricing(request.getCountry());
 
-        if (student == null) {
-            student = new Rote2RealStudent();
-            student.setEmail(email);
-        }
-
+        Rote2RealStudent student = new Rote2RealStudent();
+        student.setEmail(email);
         student.setName(request.getName().trim());
         student.setPhone(request.getPhone());
         student.setCountry(request.getCountry().trim());
+        student.setUniversityName(request.getUniversityName() != null ? request.getUniversityName().trim() : null);
+        student.setCourseDegree(request.getCourseDegree() != null ? request.getCourseDegree().trim() : null);
+        student.setYearOfStudy(request.getYearOfStudy() != null ? request.getYearOfStudy().trim() : null);
+        student.setTrack(request.getTrack() != null && !request.getTrack().trim().isEmpty() ? request.getTrack().trim() : "Generative AI");
         student.setIsInternational(pricing.isInternational());
         student.setPaymentAmountMinor(pricing.getAmountMinor());
         student.setPaymentCurrency(pricing.getCurrency());
@@ -94,31 +90,9 @@ public class Rote2RealServiceImpl implements Rote2RealService {
 
         student = studentRepository.save(student);
 
-        // Create Razorpay Order
-        try {
-            JSONObject orderRequest = new JSONObject();
-            orderRequest.put("amount", student.getPaymentAmountMinor());
-            orderRequest.put("currency", student.getPaymentCurrency());
-            orderRequest.put("receipt", "R2R_" + student.getId());
-
-            JSONObject notes = new JSONObject();
-            notes.put("student_id", student.getId());
-            notes.put("email", student.getEmail());
-            notes.put("program", "Rote2Real");
-            orderRequest.put("notes", notes);
-
-            Order order = razorpayClient.orders.create(orderRequest);
-            String orderId = order.get("id");
-
-            student.setRazorpayOrderId(orderId);
-            student = studentRepository.save(student);
-
-        } catch (Exception e) {
-            log.error("Failed to create Razorpay order for Rote2Real student: {}", email, e);
-            throw new RuntimeException("Failed to initiate payment gateway order: " + e.getMessage(), e);
-        }
-
-        return mapToRegistrationResponse(student);
+        Rote2RealRegistrationResponse response = mapToRegistrationResponse(student);
+        response.setMessage("Registration successful. Your Rote2Real profile has been saved.");
+        return response;
     }
 
     // =========================================================================
@@ -576,6 +550,10 @@ public class Rote2RealServiceImpl implements Rote2RealService {
                 .email(student.getEmail())
                 .phone(student.getPhone())
                 .country(student.getCountry())
+                .universityName(student.getUniversityName())
+                .courseDegree(student.getCourseDegree())
+                .yearOfStudy(student.getYearOfStudy())
+                .track(student.getTrack())
                 .isInternational(student.getIsInternational())
                 .paymentAmountMinor(student.getPaymentAmountMinor())
                 .paymentCurrency(student.getPaymentCurrency())

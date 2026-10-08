@@ -142,7 +142,6 @@ export const testimonialsApi = {
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL;
 
-
 export const API_ENDPOINTS = {
   SEND_OTP: `${API_BASE_URL}/auth/send-otp`,
   VERIFY_OTP: `${API_BASE_URL}/auth/verify-otp`,
@@ -263,21 +262,55 @@ STUDENT_MVP_WORKSPACE_TASKS: (
   moduleId: number | string,
   enrollmentId: number | string
 ) =>
-  `${API_BASE_URL}/mvp/workspace/modules/${moduleId}/tasks?enrollmentId=${enrollmentId}`,
-};  
+  `${API_BASE_URL}/mvp/workspace/${moduleId}/tasks?enrollmentId=${enrollmentId}`,
+
+  
+  // ============================================================
+  // ROTE2REAL
+  // ============================================================
+
+  ROTE2REAL_REGISTER:
+    `${API_BASE_URL}/api/public/rote2real/register`,
+
+  ROTE2REAL_VERIFY_PAYMENT:
+    `${API_BASE_URL}/api/public/rote2real/verify-payment`,
+
+  ROTE2REAL_EXERCISES:
+    `${API_BASE_URL}/api/public/rote2real/exercises`,
+
+  ROTE2REAL_EXERCISE_BY_DAY: (
+    day: number,
+    studentId?: number | string
+  ) =>
+    `${API_BASE_URL}/api/public/rote2real/exercises/day/${day}${
+      studentId ? `?studentId=${studentId}` : ''
+    }`,
+
+  ROTE2REAL_SUBMISSIONS: (
+    studentId: number | string
+  ) =>
+    `${API_BASE_URL}/api/public/rote2real/submissions?studentId=${studentId}`,
+
+  ROTE2REAL_UPLOAD_EVIDENCE: (
+    studentId: number | string,
+    exerciseId: number | string
+  ) =>
+    `${API_BASE_URL}/api/public/rote2real/upload-evidence?studentId=${studentId}&exerciseId=${exerciseId}`,
+
+  ROTE2REAL_PROGRESS: (
+    studentId: number | string
+  ) =>
+    `${API_BASE_URL}/api/public/rote2real/progress?studentId=${studentId}`,
+
+  ROTE2REAL_REPORT: (
+    studentId: number | string
+  ) =>
+    `${API_BASE_URL}/api/public/rote2real/report?studentId=${studentId}`,
+
+};
 
 // Blog API
 export const blogApi = {
-  async getAll(): Promise<ApiResponse<BlogPost[]>> {
-    return handleApiCall(async () => {
-      await delay(400);
-      const { blogPosts } = await import('./data');
-      return blogPosts.sort((a, b) => 
-        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-      );
-    }, 'Failed to fetch blog posts');
-  },
-
   async getById(id: string): Promise<ApiResponse<BlogPost | null>> {
     return handleApiCall(async () => {
       await delay(200);
@@ -361,5 +394,3 @@ export const newsletterApi = {
     }, 'Failed to subscribe to newsletter');
   }
 };
-
-

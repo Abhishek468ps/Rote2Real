@@ -30,6 +30,18 @@ public class Rote2RealStudent {
     @Column(nullable = false, length = 80)
     private String country;
 
+    @Column(name = "university_name", nullable = false, length = 200)
+    private String universityName;
+
+    @Column(name = "course_degree", nullable = false, length = 200)
+    private String courseDegree;
+
+    @Column(name = "year_of_study", nullable = false, length = 50)
+    private String yearOfStudy;
+
+    @Column(nullable = false, length = 100)
+    private String track = "Generative AI";
+
     @Column(name = "is_international", nullable = false)
     private Boolean isInternational = false;
 

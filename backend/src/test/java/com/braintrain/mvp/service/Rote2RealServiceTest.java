@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -83,13 +84,17 @@ public class Rote2RealServiceTest {
     // =========================================================================
 
     @Test
-    @DisplayName("Registration India: ₹1 (100 paise) in INR")
-    void testRegisterStudentIndia() throws Exception {
+    @DisplayName("Registration India: profile saved without creating a Razorpay order")
+    void testRegisterStudentIndia() {
         Rote2RealRegisterRequest request = Rote2RealRegisterRequest.builder()
                 .name("Arjun Sharma")
                 .email("arjun@example.com")
                 .country("India")
                 .phone("9876543210")
+                .universityName("Manipal University")
+                .courseDegree("B.Sc Data Science")
+                .yearOfStudy("1st Year")
+                .track("Generative AI")
                 .build();
 
         when(studentRepository.findByEmail("arjun@example.com")).thenReturn(Optional.empty());
@@ -99,19 +104,16 @@ public class Rote2RealServiceTest {
         savedStudent.setEmail("arjun@example.com");
         savedStudent.setName("Arjun Sharma");
         savedStudent.setCountry("India");
+        savedStudent.setUniversityName("Manipal University");
+        savedStudent.setCourseDegree("B.Sc Data Science");
+        savedStudent.setYearOfStudy("1st Year");
+        savedStudent.setTrack("Generative AI");
         savedStudent.setIsInternational(false);
         savedStudent.setPaymentAmountMinor(100L);
         savedStudent.setPaymentCurrency("INR");
         savedStudent.setPaymentStatus("PENDING");
 
         when(studentRepository.save(any(Rote2RealStudent.class))).thenReturn(savedStudent);
-
-        // Mock Razorpay order creation
-        Order mockOrder = mock(Order.class);
-        when(mockOrder.get("id")).thenReturn("order_india_123");
-        OrderClient mockOrders = mock(OrderClient.class);
-        when(mockOrders.create(any(JSONObject.class))).thenReturn(mockOrder);
-        ReflectionTestUtils.setField(razorpayClient, "orders", mockOrders);
 
         Rote2RealRegistrationResponse response = rote2RealService.registerStudent(request);
 
@@ -120,17 +122,23 @@ public class Rote2RealServiceTest {
         assertEquals(100L, response.getPaymentAmountMinor());
         assertEquals("INR", response.getPaymentCurrency());
         assertFalse(response.getIsInternational());
-        assertEquals("order_india_123", response.getRazorpayOrderId());
+        assertNull(response.getRazorpayOrderId());
+        assertEquals("Registration successful. Your Rote2Real profile has been saved.", response.getMessage());
+        verifyNoInteractions(razorpayClient);
     }
 
     @Test
-    @DisplayName("Registration International (USA): ₹10 INR equivalent (USD 12 cents)")
-    void testRegisterStudentInternational() throws Exception {
+    @DisplayName("Registration International (USA): profile saved without creating a Razorpay order")
+    void testRegisterStudentInternational() {
         Rote2RealRegisterRequest request = Rote2RealRegisterRequest.builder()
                 .name("John Doe")
                 .email("john@example.com")
                 .country("USA")
                 .phone("1234567890")
+                .universityName("University of Michigan")
+                .courseDegree("MS Data Science")
+                .yearOfStudy("1st Year")
+                .track("Generative AI")
                 .build();
 
         when(studentRepository.findByEmail("john@example.com")).thenReturn(Optional.empty());
@@ -140,18 +148,16 @@ public class Rote2RealServiceTest {
         savedStudent.setEmail("john@example.com");
         savedStudent.setName("John Doe");
         savedStudent.setCountry("USA");
+        savedStudent.setUniversityName("University of Michigan");
+        savedStudent.setCourseDegree("MS Data Science");
+        savedStudent.setYearOfStudy("1st Year");
+        savedStudent.setTrack("Generative AI");
         savedStudent.setIsInternational(true);
         savedStudent.setPaymentAmountMinor(12L);
         savedStudent.setPaymentCurrency("USD");
         savedStudent.setPaymentStatus("PENDING");
 
         when(studentRepository.save(any(Rote2RealStudent.class))).thenReturn(savedStudent);
-
-        Order mockOrder = mock(Order.class);
-        when(mockOrder.get("id")).thenReturn("order_usa_456");
-        OrderClient mockOrders = mock(OrderClient.class);
-        when(mockOrders.create(any(JSONObject.class))).thenReturn(mockOrder);
-        ReflectionTestUtils.setField(razorpayClient, "orders", mockOrders);
 
         Rote2RealRegistrationResponse response = rote2RealService.registerStudent(request);
 
@@ -160,7 +166,92 @@ public class Rote2RealServiceTest {
         assertEquals(12L, response.getPaymentAmountMinor());
         assertEquals("USD", response.getPaymentCurrency());
         assertTrue(response.getIsInternational());
-        assertEquals("order_usa_456", response.getRazorpayOrderId());
+        assertNull(response.getRazorpayOrderId());
+        assertEquals("Registration successful. Your Rote2Real profile has been saved.", response.getMessage());
+        verifyNoInteractions(razorpayClient);
+    }
+
+    @Test
+    @DisplayName("Registration saves profile details and does not create a Razorpay order")
+    void testRegisterStudentSkipsPaymentAndSavesProfile() {
+        Rote2RealRegisterRequest request = Rote2RealRegisterRequest.builder()
+                .name("Aisha Khan")
+                .email("aisha@example.com")
+                .phone("9876543210")
+                .country("India")
+                .universityName("IIT Delhi")
+                .courseDegree("B.Tech Computer Science")
+                .yearOfStudy("2nd Year")
+                .track("Applied AI")
+                .build();
+
+        when(studentRepository.findByEmail("aisha@example.com")).thenReturn(Optional.empty());
+
+        Rote2RealStudent savedStudent = new Rote2RealStudent();
+        savedStudent.setId(103L);
+        savedStudent.setName("Aisha Khan");
+        savedStudent.setEmail("aisha@example.com");
+        savedStudent.setPhone("9876543210");
+        savedStudent.setCountry("India");
+        savedStudent.setUniversityName("IIT Delhi");
+        savedStudent.setCourseDegree("B.Tech Computer Science");
+        savedStudent.setYearOfStudy("2nd Year");
+        savedStudent.setTrack("Applied AI");
+        savedStudent.setPaymentAmountMinor(100L);
+        savedStudent.setPaymentCurrency("INR");
+        savedStudent.setPaymentStatus("PENDING");
+        when(studentRepository.save(any(Rote2RealStudent.class))).thenReturn(savedStudent);
+
+        Rote2RealRegistrationResponse response = rote2RealService.registerStudent(request);
+
+        assertNotNull(response);
+        assertEquals(103L, response.getStudentId());
+        assertEquals("Aisha Khan", response.getName());
+        assertEquals("aisha@example.com", response.getEmail());
+        assertEquals("9876543210", response.getPhone());
+        assertEquals("India", response.getCountry());
+        assertEquals("IIT Delhi", response.getUniversityName());
+        assertEquals("B.Tech Computer Science", response.getCourseDegree());
+        assertEquals("2nd Year", response.getYearOfStudy());
+        assertEquals("Applied AI", response.getTrack());
+        assertEquals("PENDING", response.getPaymentStatus());
+        assertNull(response.getRazorpayOrderId());
+        assertEquals("Registration successful. Your Rote2Real profile has been saved.", response.getMessage());
+        ArgumentCaptor<Rote2RealStudent> studentCaptor = ArgumentCaptor.forClass(Rote2RealStudent.class);
+        verify(studentRepository).save(studentCaptor.capture());
+        Rote2RealStudent persistedStudent = studentCaptor.getValue();
+        assertEquals("Aisha Khan", persistedStudent.getName());
+        assertEquals("aisha@example.com", persistedStudent.getEmail());
+        assertEquals("9876543210", persistedStudent.getPhone());
+        assertEquals("India", persistedStudent.getCountry());
+        assertEquals("IIT Delhi", persistedStudent.getUniversityName());
+        assertEquals("B.Tech Computer Science", persistedStudent.getCourseDegree());
+        assertEquals("2nd Year", persistedStudent.getYearOfStudy());
+        assertEquals("Applied AI", persistedStudent.getTrack());
+        verifyNoInteractions(razorpayClient);
+    }
+
+    @Test
+    @DisplayName("Duplicate email registration is rejected")
+    void testRegisterStudentRejectsDuplicateEmail() {
+        Rote2RealRegisterRequest request = Rote2RealRegisterRequest.builder()
+                .name("Existing Student")
+                .email("dup@example.com")
+                .country("India")
+                .phone("9999999999")
+                .universityName("NIT Trichy")
+                .courseDegree("MBA")
+                .yearOfStudy("1st Year")
+                .track("Generative AI")
+                .build();
+
+        when(studentRepository.findByEmail("dup@example.com")).thenReturn(Optional.of(new Rote2RealStudent()));
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> rote2RealService.registerStudent(request));
+
+        assertTrue(ex.getMessage().contains("already exists"));
+        verify(studentRepository, never()).save(any(Rote2RealStudent.class));
     }
 
     // =========================================================================

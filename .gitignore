@@ -53,3 +53,7 @@ coverage/
 
 # Runtime user uploads
 backend/uploads/
+
+backend/local_pgdata/
+frontend/.env.local
+backend/fix_missing_legacy_schema.sql
