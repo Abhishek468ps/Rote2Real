@@ -139,8 +139,11 @@ export const testimonialsApi = {
 
 // src/lib/api.ts
 
+// Falls back to the local backend in development so a missing .env.local
+// never produces ".../undefined/api/..." URLs. Production must set the variable.
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL;
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV !== "production" ? "http://localhost:8080" : "");
 
 export const API_ENDPOINTS = {
   SEND_OTP: `${API_BASE_URL}/auth/send-otp`,
@@ -271,6 +274,9 @@ STUDENT_MVP_WORKSPACE_TASKS: (
 
   ROTE2REAL_REGISTER:
     `${API_BASE_URL}/api/public/rote2real/register`,
+
+  ROTE2REAL_CREATE_ORDER:
+    `${API_BASE_URL}/api/public/rote2real/create-order`,
 
   ROTE2REAL_VERIFY_PAYMENT:
     `${API_BASE_URL}/api/public/rote2real/verify-payment`,

@@ -205,6 +205,15 @@ export const rote2realApi = {
     return parseJson<Rote2RealRegistration>(response);
   },
 
+  async createOrder(studentId: number): Promise<Rote2RealRegistration> {
+    const response = await fetch(API_ENDPOINTS.ROTE2REAL_CREATE_ORDER, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId }),
+    });
+    return parseJson<Rote2RealRegistration>(response);
+  },
+
   async verifyPayment(payload: {
     studentId: number;
     razorpayOrderId: string;

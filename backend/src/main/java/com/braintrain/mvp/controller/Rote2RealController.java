@@ -1,5 +1,6 @@
 package com.braintrain.mvp.controller;
 
+import com.braintrain.mvp.dto.request.Rote2RealCreateOrderRequest;
 import com.braintrain.mvp.dto.request.Rote2RealRegisterRequest;
 import com.braintrain.mvp.dto.request.Rote2RealSubmissionRequest;
 import com.braintrain.mvp.dto.request.Rote2RealVerifyPaymentRequest;
@@ -35,6 +36,13 @@ public class Rote2RealController {
     // =========================================================================
     // 2. PAYMENT VERIFICATION
     // =========================================================================
+
+    @PostMapping("/create-order")
+    public ResponseEntity<Rote2RealRegistrationResponse> createOrder(
+            @Valid @RequestBody Rote2RealCreateOrderRequest request
+    ) {
+        return ResponseEntity.ok(rote2RealService.createPaymentOrder(request));
+    }
 
     @PostMapping("/verify-payment")
     public ResponseEntity<Rote2RealPaymentVerificationResponse> verifyPayment(

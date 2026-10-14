@@ -1,5 +1,6 @@
 package com.braintrain.mvp.service;
 
+import com.braintrain.mvp.dto.request.Rote2RealCreateOrderRequest;
 import com.braintrain.mvp.dto.request.Rote2RealRegisterRequest;
 import com.braintrain.mvp.dto.request.Rote2RealSubmissionRequest;
 import com.braintrain.mvp.dto.request.Rote2RealVerifyPaymentRequest;
@@ -14,6 +15,12 @@ public interface Rote2RealService {
      * Registers a student for Rote2Real program and creates a Razorpay payment order.
      */
     Rote2RealRegistrationResponse registerStudent(Rote2RealRegisterRequest request);
+
+    /**
+     * Creates (or reuses) a Razorpay order for a registered, not-yet-paid student.
+     * The amount and currency are always taken from the server-side student record.
+     */
+    Rote2RealRegistrationResponse createPaymentOrder(Rote2RealCreateOrderRequest request);
 
     /**
      * Verifies payment server-side via Razorpay signature and completes enrollment.

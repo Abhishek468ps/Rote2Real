@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,12 +15,20 @@ import {
 } from "@/components/ui/card";
 import {
   ROTE2REAL_COUNTRIES,
+  getRote2RealSession,
   rote2realApi,
   saveRote2RealSession,
   type Rote2RealRegistration,
 } from "@/lib/rote2real";
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export default function Rote2RealRegisterPage() {
+  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -30,6 +39,24 @@ export default function Rote2RealRegisterPage() {
   const [track, setTrack] = useState("Generative AI");
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [paying, setPaying] = useState(false);
+  // A registered-but-unpaid student (e.g. closed the checkout popup) can resume payment.
+  const [pendingStudent, setPendingStudent] = useState<{
+    studentId: number;
+    name: string;
+    email: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const session = getRote2RealSession();
+    if (session?.studentId && !session.enrolled) {
+      setPendingStudent({
+        studentId: session.studentId,
+        name: session.name,
+        email: session.email,
+      });
+    }
+  }, []);
 
   const persistSession = (registration: Rote2RealRegistration) => {
     saveRote2RealSession({
@@ -39,6 +66,87 @@ export default function Rote2RealRegisterPage() {
       paymentStatus: registration.paymentStatus || "PENDING",
       enrolled: false,
     });
+  };
+
+  const startPayment = async (student: {
+    studentId: number;
+    name: string;
+    email: string;
+    phone?: string;
+  }) => {
+    setPaying(true);
+    try {
+      if (typeof window === "undefined" || !window.Razorpay) {
+        throw new Error("Payment gateway is still loading. Please try again in a moment.");
+      }
+
+      // Amount / currency always come from the server, never from the browser.
+      const order = await rote2realApi.createOrder(student.studentId);
+      if (!order.razorpayOrderId || !order.razorpayKeyId) {
+        throw new Error("Could not create the payment order. Please try again.");
+      }
+
+      const checkout = new window.Razorpay({
+        key: order.razorpayKeyId,
+        order_id: order.razorpayOrderId,
+        amount: order.paymentAmountMinor,
+        currency: order.paymentCurrency,
+        name: "Brain Train",
+        description: "Rote2Real 20-Day Sprint",
+        prefill: {
+          name: student.name,
+          email: student.email,
+          contact: student.phone || "",
+        },
+        theme: { color: "#4f46e5" },
+        modal: {
+          ondismiss: () => {
+            setPaying(false);
+            toast.info("Payment not completed. You can resume it anytime.");
+          },
+        },
+        handler: async (result: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            const verification = await rote2realApi.verifyPayment({
+              studentId: student.studentId,
+              razorpayOrderId: result.razorpay_order_id,
+              razorpayPaymentId: result.razorpay_payment_id,
+              razorpaySignature: result.razorpay_signature,
+            });
+            saveRote2RealSession({
+              studentId: student.studentId,
+              name: student.name,
+              email: student.email,
+              paymentStatus: verification.paymentStatus,
+              enrolled: verification.enrolled,
+            });
+            toast.success(verification.message || "Payment successful. Welcome!");
+            router.push("/rote2real/dashboard");
+          } catch (error) {
+            toast.error(
+              error instanceof Error
+                ? error.message
+                : "Payment verification failed. If money was deducted, contact support."
+            );
+            setPaying(false);
+          }
+        },
+      });
+
+      checkout.on("payment.failed", (response: any) => {
+        toast.error(response?.error?.description || "Payment failed. Please try again.");
+        setPaying(false);
+      });
+
+      checkout.open();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to start payment.");
+      setPaying(false);
+    }
   };
 
   const onSubmit = async (event: FormEvent) => {
@@ -66,6 +174,18 @@ export default function Rote2RealRegisterPage() {
         registration.message ||
           "Registration successful. Your Rote2Real profile has been saved."
       );
+      setPendingStudent({
+        studentId: registration.studentId,
+        name: registration.name,
+        email: registration.email,
+      });
+      setSubmitting(false);
+      await startPayment({
+        studentId: registration.studentId,
+        name: registration.name,
+        email: registration.email,
+        phone: registration.phone || undefined,
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Registration failed.");
     } finally {
@@ -79,10 +199,26 @@ export default function Rote2RealRegisterPage() {
         <CardHeader>
           <CardTitle>Register for Rote2Real</CardTitle>
           <CardDescription>
-            Student registration is now saved without payment initiation. We will keep your profile on record and continue with the next steps.
+            Register and complete the secure Razorpay payment to unlock your 20-day sprint.
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {pendingStudent && (
+            <div className="mb-6 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-700">
+              <div className="font-semibold">Payment pending</div>
+              <p className="mt-1">
+                {pendingStudent.email} is registered but payment is not complete.
+              </p>
+              <Button
+                type="button"
+                className="mt-3"
+                disabled={paying}
+                onClick={() => startPayment(pendingStudent)}
+              >
+                {paying ? "Opening payment…" : "Complete payment"}
+              </Button>
+            </div>
+          )}
           <form className="space-y-4" onSubmit={onSubmit}>
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
@@ -180,8 +316,12 @@ export default function Rote2RealRegisterPage() {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Saving registration…" : "Submit Registration"}
+            <Button type="submit" className="w-full" disabled={submitting || paying}>
+              {submitting
+                ? "Saving registration…"
+                : paying
+                ? "Opening payment…"
+                : "Register & Pay"}
             </Button>
           </form>
 

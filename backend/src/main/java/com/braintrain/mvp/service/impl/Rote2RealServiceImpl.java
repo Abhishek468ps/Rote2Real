@@ -3,6 +3,7 @@ package com.braintrain.mvp.service.impl;
 import com.braintrain.mvp.config.Rote2RealScoringProperties;
 import com.braintrain.mvp.dto.request.Rote2RealRegisterRequest;
 import com.braintrain.mvp.dto.request.Rote2RealSubmissionRequest;
+import com.braintrain.mvp.dto.request.Rote2RealCreateOrderRequest;
 import com.braintrain.mvp.dto.request.Rote2RealVerifyPaymentRequest;
 import com.braintrain.mvp.dto.response.*;
 import com.braintrain.mvp.entity.Rote2RealClassification;
@@ -93,6 +94,53 @@ public class Rote2RealServiceImpl implements Rote2RealService {
         Rote2RealRegistrationResponse response = mapToRegistrationResponse(student);
         response.setMessage("Registration successful. Your Rote2Real profile has been saved.");
         return response;
+    }
+
+    // =========================================================================
+    // 1b. CREATE RAZORPAY ORDER (for a registered, unpaid student)
+    // =========================================================================
+
+    @Override
+    public Rote2RealRegistrationResponse createPaymentOrder(Rote2RealCreateOrderRequest request) {
+        Rote2RealStudent student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> new RuntimeException("Student record not found for id: " + request.getStudentId()));
+
+        if ("PAID".equalsIgnoreCase(student.getPaymentStatus())) {
+            throw new IllegalStateException("Payment is already completed for this registration.");
+        }
+
+        // Reuse an existing open order so refreshes / retries don't create duplicate orders.
+        if (student.getRazorpayOrderId() != null && !student.getRazorpayOrderId().isBlank()) {
+            return mapToRegistrationResponse(student);
+        }
+
+        try {
+            org.json.JSONObject orderRequest = new org.json.JSONObject();
+            orderRequest.put("amount", student.getPaymentAmountMinor());
+            orderRequest.put("currency", student.getPaymentCurrency());
+            orderRequest.put("receipt", "r2r_" + student.getId());
+
+            org.json.JSONObject notes = new org.json.JSONObject();
+            notes.put("studentId", String.valueOf(student.getId()));
+            notes.put("email", student.getEmail());
+            notes.put("program", "Rote2Real");
+            orderRequest.put("notes", notes);
+
+            Order order = razorpayClient.orders.create(orderRequest);
+
+            student.setRazorpayOrderId(order.get("id"));
+            student.setPaymentStatus("PENDING");
+            student = studentRepository.save(student);
+
+            log.info("Created Razorpay order {} for Rote2Real student {}", student.getRazorpayOrderId(), student.getId());
+
+            Rote2RealRegistrationResponse response = mapToRegistrationResponse(student);
+            response.setMessage("Payment order created.");
+            return response;
+        } catch (Exception e) {
+            log.error("Failed to create Razorpay order for Rote2Real student {}", student.getId(), e);
+            throw new RuntimeException("Unable to start payment. Please try again.", e);
+        }
     }
 
     // =========================================================================
