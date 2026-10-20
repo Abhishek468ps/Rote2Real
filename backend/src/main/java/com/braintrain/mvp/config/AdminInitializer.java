@@ -1,68 +1,3 @@
-/*package com.braintrain.mvp.config;
-
-import com.braintrain.mvp.entity.User;
-import com.braintrain.mvp.enums.UserRole;
-import com.braintrain.mvp.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-
-@Component
-@RequiredArgsConstructor
-public class AdminInitializer implements CommandLineRunner {
-
-    private final UserRepository userRepository;
-
-    private final PasswordEncoder passwordEncoder;
-
-    @Override
-    public void run(String... args) {
-
-        String adminEmail = "monikasingh@braintrainllp.in";
-
-        if (userRepository.findByEmail(adminEmail).isPresent()) {
-
-            System.out.println("Admin already exists.");
-
-            return;
-        }
-
-        User admin = new User();
-
-        admin.setFullName("Super Admin");
-
-        admin.setEmail(adminEmail);
-
-        admin.setPassword(
-                passwordEncoder.encode("Admin@123")
-        );
-
-        admin.setRole(UserRole.ADMIN);
-
-        admin.setBraintrainId("BT-ADM-2026-0001");
-
-        admin.setEmailVerified(true);
-
-        admin.setActive(true);
-
-        admin.setWallet(0);
-
-        admin.setXp(0);
-
-        admin.setProfileImage(null);
-
-        userRepository.save(admin);
-
-        System.out.println("Admin user created successfully.");
-
-    }
-
-}*/
-
-
 package com.braintrain.mvp.config;
 
 import com.braintrain.mvp.entity.User;
@@ -70,7 +5,9 @@ import com.braintrain.mvp.enums.UserRole;
 import com.braintrain.mvp.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -79,8 +16,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AdminInitializer implements CommandLineRunner {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(AdminInitializer.class);
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    /**
+     * Bootstrap password for the very first admin account.
+     * Supplied via the ADMIN_BOOTSTRAP_PASSWORD environment variable so no
+     * credential ever lives in source code. Empty means "do not bootstrap".
+     */
+    @Value("${admin.bootstrap.password:}")
+    private String bootstrapPassword;
 
     @Override
     public void run(String... args) {
@@ -94,9 +42,9 @@ public class AdminInitializer implements CommandLineRunner {
 
         if (adminByBraintrainId.isPresent()) {
 
-            System.out.println(
-                    "Admin already exists with BrainTrain ID: "
-                            + adminBraintrainId
+            log.info(
+                    "Admin already exists with BrainTrain ID: {}",
+                    adminBraintrainId
             );
 
             return;
@@ -108,9 +56,20 @@ public class AdminInitializer implements CommandLineRunner {
 
         if (adminByEmail.isPresent()) {
 
-            System.out.println(
-                    "Admin already exists with email: "
-                            + adminEmail
+            log.info(
+                    "Admin already exists with email: {}",
+                    adminEmail
+            );
+
+            return;
+        }
+
+        if (bootstrapPassword == null || bootstrapPassword.isBlank()) {
+
+            log.warn(
+                    "No admin account exists and admin.bootstrap.password "
+                            + "(ADMIN_BOOTSTRAP_PASSWORD) is not set - "
+                            + "skipping admin bootstrap."
             );
 
             return;
@@ -124,7 +83,7 @@ public class AdminInitializer implements CommandLineRunner {
         admin.setEmail(adminEmail);
 
         admin.setPassword(
-                passwordEncoder.encode("Admin@123")
+                passwordEncoder.encode(bootstrapPassword)
         );
 
         admin.setRole(UserRole.ADMIN);
@@ -143,8 +102,6 @@ public class AdminInitializer implements CommandLineRunner {
 
         userRepository.save(admin);
 
-        System.out.println(
-                "Admin user created successfully."
-        );
+        log.info("Admin bootstrap account created successfully.");
     }
 }

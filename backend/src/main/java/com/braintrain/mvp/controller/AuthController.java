@@ -14,6 +14,8 @@ import com.braintrain.mvp.service.OtpService;
 import jakarta.validation.Valid;
 import com.braintrain.mvp.dto.response.LoginResponse;
 import com.braintrain.mvp.service.AuthService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -26,6 +28,9 @@ import com.braintrain.mvp.service.AuthService;
 )
 public class AuthController {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(AuthController.class);
+
     private final RegistrationService registrationService;
     private final OtpService otpService;
     private final AuthService authService;
@@ -34,7 +39,7 @@ public class AuthController {
 public ResponseEntity<RegistrationResponse> register(
         @Valid @RequestBody RegisterRequest request
 ) {
-        System.out.println("Register API Hit");
+        log.debug("Register API hit");
     return ResponseEntity.ok(
             registrationService.register(request)
     );

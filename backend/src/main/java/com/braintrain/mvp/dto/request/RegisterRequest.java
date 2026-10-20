@@ -1,36 +1,3 @@
-/*package com.braintrain.mvp.dto.request;
-
-import com.braintrain.mvp.enums.UserRole;
-import lombok.Data;
-
-import java.util.Map;
-
-import org.antlr.v4.runtime.misc.NotNull;
-
-@Data
-public class RegisterRequest {
-
-    @NotBlank
-private String fullName;
-
-@NotBlank
-@Email
-private String email;
-
-@NotBlank
-private String phone;
-
-@NotBlank
-private String password;
-
-@NotNull
-private UserRole role;
-
-   
-    private Map<String, Object> profile;
-}
-*/
-
 package com.braintrain.mvp.dto.request;
 
 import com.braintrain.mvp.enums.UserRole;

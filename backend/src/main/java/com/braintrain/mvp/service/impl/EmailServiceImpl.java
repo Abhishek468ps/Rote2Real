@@ -7,6 +7,8 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ import java.net.http.HttpResponse;
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(EmailServiceImpl.class);
 
     private final JavaMailSender mailSender;
 
@@ -198,9 +203,9 @@ helper.setSubject(
                     htmlContent
             );
 
-            System.out.println(
-                    "OTP email sent successfully to: "
-                            + email
+            log.info(
+                    "OTP email sent successfully to: {}",
+                    email
             );
 
         } catch (MessagingException e) {
@@ -1097,9 +1102,9 @@ sendViaBrevo(
                 );
             }
 
-            System.out.println(
-                    "Email sent successfully via Brevo to: "
-                            + recipient
+            log.info(
+                    "Email sent successfully via Brevo to: {}",
+                    recipient
             );
 
         } catch (Exception e) {

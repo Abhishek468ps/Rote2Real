@@ -5,14 +5,21 @@ import com.braintrain.mvp.repository.EmailOtpRepository;
 import com.braintrain.mvp.service.EmailService;
 import com.braintrain.mvp.service.OtpService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class OtpServiceImpl implements OtpService {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(OtpServiceImpl.class);
+
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final EmailOtpRepository otpRepository;
     private final EmailService emailService;
@@ -20,8 +27,7 @@ public class OtpServiceImpl implements OtpService {
     @Override
     public void sendOtp(String email) {
 
-        System.out.println("========== SEND OTP START ==========");
-        System.out.println("OTP requested for email: " + email);
+        log.debug("OTP requested for email: {}", email);
 
         try {
 
@@ -29,12 +35,8 @@ public class OtpServiceImpl implements OtpService {
             String otp =
                     String.valueOf(
                             100000 +
-                            new Random().nextInt(900000)
+                            RANDOM.nextInt(900000)
                     );
-
-            System.out.println(
-                    "OTP generated successfully"
-            );
 
             // Create OTP entity
             EmailOtp emailOtp = new EmailOtp();
@@ -48,46 +50,18 @@ public class OtpServiceImpl implements OtpService {
                             .plusMinutes(10)
             );
 
-            // Save OTP
-            System.out.println(
-                    "Saving OTP to database..."
-            );
-
             otpRepository.save(emailOtp);
-
-            System.out.println(
-                    "OTP saved successfully"
-            );
-
-            // Send email
-            System.out.println(
-                    "Sending OTP email..."
-            );
 
             emailService.sendOtpEmail(
                     email,
                     otp
             );
 
-            System.out.println(
-                    "OTP email sent successfully"
-            );
-
-            System.out.println(
-                    "========== SEND OTP END =========="
-            );
+            log.info("OTP email sent successfully to {}", email);
 
         } catch (Exception e) {
 
-            System.err.println(
-                    "========== OTP SEND FAILED =========="
-            );
-
-            System.err.println(
-                    "Email: " + email
-            );
-
-            e.printStackTrace();
+            log.error("Failed to send OTP email to {}", email, e);
 
             throw new RuntimeException(
                     "Failed to send OTP",
