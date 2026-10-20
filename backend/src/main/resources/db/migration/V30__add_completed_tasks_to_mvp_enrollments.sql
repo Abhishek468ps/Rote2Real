@@ -1,0 +1,2 @@
+ALTER TABLE mvp_enrollments
+ADD COLUMN IF NOT EXISTS completed_tasks INTEGER NOT NULL DEFAULT 0;

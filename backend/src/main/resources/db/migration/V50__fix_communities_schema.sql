@@ -1,0 +1,8 @@
+ALTER TABLE communities
+    ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+
+ALTER TABLE communities
+    ADD COLUMN IF NOT EXISTS description TEXT;
+
+ALTER TABLE communities
+    ADD COLUMN IF NOT EXISTS logo VARCHAR(255);

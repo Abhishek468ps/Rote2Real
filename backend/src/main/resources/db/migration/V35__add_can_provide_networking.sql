@@ -1,0 +1,2 @@
+ALTER TABLE mentor_profiles
+ADD COLUMN IF NOT EXISTS can_provide_networking BOOLEAN NOT NULL DEFAULT FALSE;
